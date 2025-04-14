@@ -4,7 +4,6 @@ from server import PromptServer
 from .src.defn import collect_defns
 from .src.make_json import create_schema_for_api
 from .src.gen_stub import generate_stub
-from .src.nodes import SaveImageMemory
 
 
 @PromptServer.instance.routes.get("/node-api-schema")
@@ -23,8 +22,3 @@ async def get_node_stubs(request):
         content_type="text/plain",
         charset="utf-8",
     )
-
-
-NODE_CLASS_MAPPINGS = {
-    "SaveImageMemory": SaveImageMemory,
-}

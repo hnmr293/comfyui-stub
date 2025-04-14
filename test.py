@@ -153,7 +153,7 @@ def main5():
     latent = nodes.latent.EmptyLatentImage(WIDTH, HEIGHT, BATCH_SIZE)
     sampler = nodes.sampling.KSampler(sampler_name="euler", scheduler="normal")
     decode = nodes.latent.VAEDecode()
-    save = nodes.hnmr.image.SaveImageMemory(MEMORY_TAG, dummy_input=random.randint(0, 9999))  # enforce rerun
+    save = nodes.hnmr.image.SaveImagesMemory(MEMORY_TAG, dummy_input=random.randint(0, 9999))  # enforce rerun
 
     with Workflow(nodes) as wf:
         ckpt.output("CLIP") - prompt.input("clip")
