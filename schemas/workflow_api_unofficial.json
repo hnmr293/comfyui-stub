@@ -1,0 +1,72 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$ref": "#/definitions/ComfyAPIWorkflowUnofficial",
+    "definitions": {
+        "link": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "integer"
+                }
+            ],
+            "minItems": 2,
+            "maxItems": 2
+        },
+        "nodeValue": {
+            "oneOf": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "integer"
+                },
+                {
+                    "type": "number"
+                },
+                {
+                    "type": "boolean"
+                },
+                {
+                    "$ref": "#/definitions/link"
+                }
+            ]
+        },
+        "ComfyAPIWorkflowUnofficial": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "inputs": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "$ref": "#/definitions/nodeValue"
+                            }
+                        },
+                        "class_type": {
+                            "type": "string"
+                        },
+                        "_meta": {
+                            "type": "object",
+                            "properties": {
+                                "title": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "title"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "inputs",
+                        "class_type",
+                        "_meta"
+                    ]
+                }
+            ]
+        }
+    }
+}
