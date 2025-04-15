@@ -113,33 +113,21 @@ def generate_stub(defns: list[NodeDefn]) -> str:
             self._add_input(ComfyInput(self, 1, "param2", ComfyTypes.FLOAT, param2))
             self._add_input(ComfyInput(self, 2, "param3", ComfyTypes.STRING, param3))
             self._add_output(ComfyOutput(self, 0, None, ComfyTypes.LATENT))
-        
         @property
-        def input_length(self) -> Literal[3]:
-            return 3
-        
+        def input_length(self) -> Literal[3]: return 3
         @property
-        def output_length(self) -> Literal[1]:
-            return 1
-        
+        def output_length(self) -> Literal[1]: return 1
         @overload
         def input(self, index: Literal[0, "param1"]) -> ComfyInput[ComfyTypes.INT]: ...
-        
         @overload
         def input(self, index: Literal[1, "param2"]) -> ComfyInput[ComfyTypes.FLOAT]: ...
-        
         @overload
         def input(self, index: Literal[2, "param3"]) -> ComfyInput[ComfyTypes.STRING]: ...
-        
-        def input(self, index: int | str) -> ComfyInput[Any]:
-            return super().input(index)
-        
+        def input(self, index: int | str) -> ComfyInput[Any]: return super().input(index)
         @overload
         def output(self, index: Literal[0, "LATENT"]) -> ComfyOutput[ComfyTypes.LATENT]: ...
+        def output(self, index: int | str) -> ComfyOutput[Any]: return super().output(index)
         
-        def output(self, index: int | str) -> ComfyOutput[Any]:
-            return super().output(index)
-    
     コンストラクタには静的な入力値を渡す
     動的な入力値は触らない（内部で _WILL_BE_LINKED もしくは _NOT_GIVEN（オプショナル引数の場合）を渡す）
     check 時に _WILL_BE_LINKED が残っていたらエラーとする
@@ -167,15 +155,13 @@ def _create_class_def(defn: NodeDefn1) -> str:
 
     method = f"""
     @property
-    def input_length(self) -> Literal[{len(defn.input_types)}]:
-        return {len(defn.input_types)}
+    def input_length(self) -> Literal[{len(defn.input_types)}]: return {len(defn.input_types)}
     """.rstrip()
     methods_list.append(method)
 
     method = f"""
     @property
-    def output_length(self) -> Literal[{len(defn.output_types)}]:
-        return {len(defn.output_types)}
+    def output_length(self) -> Literal[{len(defn.output_types)}]: return {len(defn.output_types)}
     """.rstrip()
     methods_list.append(method)
 
@@ -229,8 +215,7 @@ def _create_class_def(defn: NodeDefn1) -> str:
         methods_list.append(method)
 
     method = f"""
-    def input(self, index: int | str) -> ComfyInput[Any]:
-        return super().input(index)
+    def input(self, index: int | str) -> ComfyInput[Any]: return super().input(index)
         """.rstrip()
     methods_list.append(method)
 
@@ -273,8 +258,7 @@ def _create_class_def(defn: NodeDefn1) -> str:
         methods_list.append(method)
 
     method = f"""
-    def output(self, index: int | str) -> ComfyOutput[Any]:
-        return super().output(index)
+    def output(self, index: int | str) -> ComfyOutput[Any]: return super().output(index)
         """.rstrip()
     methods_list.append(method)
 
@@ -291,9 +275,9 @@ def _create_class_def(defn: NodeDefn1) -> str:
         {ctor_outputs}
     """.rstrip()
 
-    methods = "\n".join(methods_list)
+    methods = "".join(methods_list)  # @overload の前に改行が入っている
 
-    class_def = header + ctor + "\n" + methods
+    class_def = header + ctor + methods
     return class_def
 
 
