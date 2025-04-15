@@ -58,6 +58,9 @@ class ComfyOutput(Generic[_T]):
     type: _T
     """type of this output"""
 
+    def __sub__(self, other: ComfyInput[_T]):
+        raise NotImplementedError("call under workflow context")
+
 
 class _Node:
     _context = None  # for workflow
