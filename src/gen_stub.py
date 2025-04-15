@@ -127,6 +127,8 @@ def generate_stub(defns: list[NodeDefn]) -> str:
         @overload
         def output(self, index: Literal[0, "LATENT"]) -> ComfyOutput[ComfyTypes.LATENT]: ...
         def output(self, index: int | str) -> ComfyOutput[Any]: return super().output(index)
+        __truediv__ = output
+        __rtruediv__ = input
         
     コンストラクタには静的な入力値を渡す
     動的な入力値は触らない（内部で _WILL_BE_LINKED もしくは _NOT_GIVEN（オプショナル引数の場合）を渡す）
@@ -261,6 +263,9 @@ def _create_class_def(defn: NodeDefn1) -> str:
     def output(self, index: int | str) -> ComfyOutput[Any]: return super().output(index)
         """.rstrip()
     methods_list.append(method)
+
+    methods_list.append("\n    __truediv__ = output")
+    methods_list.append("\n    __rtruediv__ = input")
 
     ctor_params = ",\n        ".join(ctor_params_list)
     ctor_inputs = "\n        ".join(ctor_inputs_list)

@@ -108,11 +108,8 @@ class _Node:
                 return out
         raise IndexError(f"invalid index {index} for output")
 
-    def __truediv__(self, other: int | str) -> ComfyInput[Any]:
-        return self.output(other)
-
-    def __rtruediv__(self, other: int | str) -> ComfyOutput[Any]:
-        return self.input(other)
+    __truediv__ = output  # self / n == self.output(n)
+    __rtruediv__ = input  # n / self == self.input(n)
 
 
 _WILL_BE_LINKED = object()
