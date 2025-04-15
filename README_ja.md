@@ -1,15 +1,17 @@
 # ComfyUI-Stub
 
-[日本語 ver.](./README_ja.md)
+[English ver.](./README.md)
 
-Generates stub files for manipulating ComfyUI node lists and JSON Schema describing the inputs and outputs of each node.
+ComfyUI のノード一覧を操作するためのスタブファイル、および各ノードの入出力を記述した JSON Schema を生成します。
 
-The following APIs are added:
+APIとして
 
-- `{ComfyUI URL}/node-api-stub`
-- `{ComfyUI URL}/node-api-schema`
+- `{ComfyUIのURL}/node-api-stub`
+- `{ComfyUIのURL}/node-api-schema`
 
-For example, you can retrieve and save stub files as follows:
+が追加されます。
+
+たとえば以下のようにしてスタブファイルを取得・保存できます。
 
 ```python
 import requests
@@ -22,19 +24,19 @@ with open('nodes.py', 'w') as io:
 
 ## `/node-api-stub`
 
-Generates a stub file for Python.
+python 用のスタブファイルを生成します。
 
-The generated file has no dependencies on external files or libraries and can be imported and used on its own.
+生成されるファイルは外部のファイルやライブラリへの依存性が無く、単体で `import` して使用できます。
 
-### Stub File Structure
+### スタブファイルの構造
 
-The generated file has the following structure.
+生成されるファイルは以下のような構造になっています。
 
-All inputs and outputs of each node are fully typed.
+各ノードの入出力は完全に型付けされています。
 
 ```python
 class ComfyTypes:
-    """A class (namespace) that collects types used in ComfyUI"""
+    """ComfyUI で使用される型を集めたクラス（名前空間）"""
     INT: TypeAlias = int
     FLOAT: TypeAlias = float
     ...
@@ -45,21 +47,21 @@ class ComfyTypes:
 
 @dataclass(frozen=True)
 class ComfyInput(Generic[_T]):
-    """A class representing an input to a node"""
+    """ノードへの入力を表すクラス"""
     ...
 
 @dataclass(frozen=True)
 class ComfyOutput(Generic[_T]):
-    """A class representing an output from a node"""
+    """ノードからの出力を表すクラス"""
     ...
 
 class Workflow:
-    """A class for manipulating workflows (described later)"""
+    """ワークフローを操作するためのクラス（後述）"""
     ...
 
 class VAEDecode_749363c83c854e23a9bf916eb04fce09(_Node):
-    """An example of a generated node (VAEDecode)"""
-    # A uuid is appended to the end of the class name to avoid name collisions
+    """生成されるノードの例 (VAEDecode)"""
+    # 名前の衝突を避けるため、クラス名の末尾に uuid を付与しています
     
     def __init__(
         self,
@@ -97,42 +99,42 @@ class VAEDecode_749363c83c854e23a9bf916eb04fce09(_Node):
 ...
 
 class latent:
-    """Use this"""
+    """外部から呼び出すときはこちらを使用します"""
     VAEDecode = VAEDecode_749363c83c854e23a9bf916eb04fce09
     VAEEncode = VAEEncode_ce9eb09b4fae44b3a4cb0953c8888e30
     ...
 ```
 
-### Building Workflows
+### ワークフローの構築
 
-Usage examples can be found in [test.py](./test.py).
+使用例は [test.py](./test.py) にあります。
 
-The following assumes that the stub file is saved as `./nodes.py`.
+以下、スタブファイルが `./nodes.py` に保存されているとします。
 
-#### 1. Low-level Construction Method
+#### 1. 低レベルな構築方法
 
-Add nodes to the workflow with `Workflow.add(node)`. Arguments not passed during node construction need to be connected to outputs from other nodes later.
+`Workflow.add(node)` でワークフローにノードを追加します。ノードの構築時に渡されなかった引数は、後から別ノードの出力をつなぐ必要があります。
 
-For each node, you can get the nth input or output with `Node.input(n)` or `Node.output(n)`. You can retrieve them using ordinals (`0`, `1`, ...), names (`"clip"`), or type names (`"CLIP"`).
+各ノードに対して `Node.input(n)` や `Node.output(n)` で n 番目の入出力を取得できます。序数 (`0`, `1`, ...) のほか、名前 (`"clip"`) や型名 (`"CLIP"`) でも取得可能です。
 
-To connect the output and the input, call `Workflow.link(src, dst)`.
+出力を入力につなげるには `Workflow.link(src, dst)` を呼び出します。
 
-After adding everything, perform error checking with `Workflow.check()`.
+すべて追加し終わったら、`Workflow.check()` でエラーチェックを行います。
 
-Output the workflow with `Workflow.to_dict()`.
+ワークフローの出力は `Workflow.to_dict()` により行います。
 
 ```python
 import nodes
 
-# Prepare workflow
+# ワークフローの準備
 wf = nodes.Workflow()
 
-# Constants for image generation
+# 画像生成用の定数
 CKPT = "SDXL/animagine-xl-3.1.safetensors"
 PROMPT = "1girl, solo, original, masterpiece, best quality"
 NEGATIVE_PROMPT = "bad quality, worst quality, low quality, text, watermark"
 
-# Generate nodes
+# ノードの生成
 ckpt = nodes.loaders.CheckpointLoaderSimple(CKPT)
 prompt = nodes.conditioning.CLIPTextEncode(PROMPT)
 negative_prompt = nodes.conditioning.CLIPTextEncode(NEGATIVE_PROMPT)
@@ -141,7 +143,7 @@ sampler = nodes.sampling.KSampler(sampler_name="euler", scheduler="normal")
 decode = nodes.latent.VAEDecode()
 save = nodes.image.SaveImage(filename_prefix="test")
 
-# Add nodes to the workflow
+# ワークフローにノードを追加する
 wf.add(ckpt)
 wf.add(prompt)
 wf.add(negative_prompt)
@@ -150,7 +152,7 @@ wf.add(sampler)
 wf.add(decode)
 wf.add(save)
 
-# Connect nodes
+# ノード同士をつなぐ
 wf.link(ckpt.output("CLIP"), prompt.input("clip"))
 wf.link(ckpt.output("CLIP"), negative_prompt.input("clip"))
 wf.link(ckpt.output("MODEL"), sampler.input("model"))
@@ -161,24 +163,24 @@ wf.link(sampler.output(0), decode.input("samples"))
 wf.link(ckpt.output("VAE"), decode.input("vae"))
 wf.link(decode.output(0), save.input("images"))
 
-# Error checking
+# エラーチェック
 wf.check()
 
-# Output in dict format, save with json.dump
+# dict 形式で出力し、json.dump で保存する
 x = wf.to_dict()
 with open("workflow.json", "w") as io:
     json.dump(x, io, indent=4)
 ```
 
-#### 2. Shorthands
+#### 2. 糖衣構文
 
-There are several shortcuts available when you find it tedious to call `Workflow.add(node)` and `Workflow.link(src, dst)` repeatedly.
+いちいち `Workflow.add(node)` や `Workflow.link(src, dst)` を呼ぶのが面倒なときはいくつかのショートカットが使えます。
 
-Note that these must be done within a `with Workflow():` block. In this case, `Workflow.check()` is executed within `Workflow.__exit__(...)`, so you don't need to explicitly call `Workflow.check()`.
+いずれも `with Workflow():` の中で行う必要があることに注意してください。この場合、`Workflow.__exit__(...)` の中で `Workflow.check()` を実行しているので、`Workflow.check()` を明示的に呼びだす必要はありません。
 
-**1. Directly passing another node's `output(n)`**
+**1. 別ノードの `output(n)` を直接渡す**
 
-Within a `with Workflow()` block, instead of connecting nodes later, you can pass the output of another node directly during node construction.
+`with Workflow()` の中では、後からノード同士をつなぐのではなく、ノード構築時に別ノードの出力をそのまま渡すことができます。
 
 ```python
 CheckpointLoaderSimple = nodes.loaders.CheckpointLoaderSimple
@@ -190,27 +192,27 @@ with nodes.Workflow() as wf:
                                   # ~~~~~~~~~~~~~~~~~~~
 ```
 
-Also, you can get all outputs with `Node.outputs()`, so you can do the following:
+また、`Node.outputs()` ですべての出力を取得できるので、以下のようにもできます。
 
 ```python
 with nodes.Workflow() as wf:
-    model, clip, vae = CheckpointLoaderSimple(CKPT).outputs()  # <- add .outputs()
+    model, clip, vae = CheckpointLoaderSimple(CKPT).outputs()  # <- .outputs() を追加
     prompt = CLIPTextEncode(PROMPT, clip)
 ```
 
-All inputs and outputs are typed, so invalid inputs can be detected by the type checker.
+入出力はすべて型付けされているため、型チェッカにより不正な入力を検出することができます。
 
 ```python
 with nodes.Workflow() as wf:
     model, clip, vae = CheckpointLoaderSimple(CKPT).outputs()
     prompt = CLIPTextEncode(PROMPT, model)
     # error:                        ~~~~~
-    # error: Type "ComfyOutput[MODEL]" cannot be assigned to type "CLIP | ComfyOutput[CLIP]"
+    # error: 型 "ComfyOutput[MODEL]" は型 "CLIP | ComfyOutput[CLIP]" に割り当てできません
 ```
 
-**2. Connecting `output(n)` and `input(n)` with `-`**
+**2. `output(n)` と `input(n)` を `-` でつなぐ**
 
-`ComfyOutput` has `__sub__` defined, allowing you to connect the output and the input with `-`.
+`ComfyOutput` には `__sub__` が定義されており、`-` で出力 - 入力をつなぐことができます。
 
 ```python
 with nodes.Workflow() as wf:
@@ -219,13 +221,13 @@ with nodes.Workflow() as wf:
     ckpt.output("CLIP") - prompt.input("clip")
 ```
 
-Some type checkers may warn about discarding the value of the expression, so suppress the warning as needed.
+型チェッカによっては式の値を捨てているという警告が出るので、必要に応じて警告の抑制を行ってください。
 
-**3. Connecting `src_node / n` and `m / dst_node` with `-`**
+**3. `src_node / n` と `m / dst_node` を `-` でつなぐ**
 
-`n / Node` or `Node.__truediv__(n)` is an alias for `Node.output(n)`.
+`n / Node` すなわち `Node.__truediv__(n)` は `Node.output(n)` のエイリアスです。
 
-Similarly, `Node / n` or `Node.__rtruediv__(n)` is an alias for `Node.input(n)`.
+同じく、`Node / n` すなわち `Node.__rtruediv__(n)` は `Node.input(n)` のエイリアスです。
 
 ```python
 with nodes.Workflow() as wf:
@@ -234,9 +236,9 @@ with nodes.Workflow() as wf:
     ckpt / "CLIP" - "clip" / prompt
 ```
 
-#### 3. Calling Workflows
+#### 3. ワークフローの呼び出し
 
-In addition to outputting with `Workflow.to_dict()`, created workflows can be sent to a running ComfyUI for processing with `Workflow.call()` or `await Workflow.acall()`.
+作成したワークフローは、`Workflow.to_dict()` で出力するほか、`Workflow.call()` もしくは `await Workflow.acall()` により起動済みの ComfyUI に処理を投げることができます。
 
 ```python
 class Workflow:
@@ -255,22 +257,22 @@ class Workflow:
         ...
 ```
 
-The return value is the JSON returned by ComfyUI.
+戻り値は ComfyUI が返す JSON です。
 
-A `TimeoutError` occurs if the number of seconds specified in `timeout` elapses.
+`timeout` に指定した秒数が経過すると `TimeoutError` が発生します。
 
-Below is an example of generating an image with SDXL:
+SDXLによる画像生成を行う例を以下に示します。
 
 ```python
-# Import the stub file
+# スタブファイルの import
 import nodes
 
-# Constants for generation
+# 生成用の定数
 CKPT = "SDXL\\animagine-xl-3.1.safetensors"
 PROMPT = "1girl, solo, original, masterpiece, best quality"
 NEGATIVE_PROMPT = "bad quality, worst quality, low quality, text, watermark"
 
-# Build workflow
+# ワークフローの構築
 with nodes.Workflow() as wf:
     model, clip, vae = nodes.loaders.CheckpointLoaderSimple(CKPT).outputs()
     cond = nodes.conditioning.CLIPTextEncode(PROMPT, clip).output(0)
@@ -280,17 +282,17 @@ with nodes.Workflow() as wf:
     images = nodes.latent.VAEDecode(samples, vae).output(0)
     save = nodes.image.SaveImage(images, filename_prefix="test")
 
-# Call workflow
+# ワークフローの呼び出し
 wf.call()
 ```
 
 ### `/node-api-schema`
 
-Returns a JSON Schema containing information about the inputs and outputs of all nodes, to provide editor support when writing JSON files for the API by hand.
+API 用の JSON ファイルを手書きするときにエディタの支援が得られるよう、全ノードの入出力の情報を持った JSON Schema を返します。
 
-It has the following format:
+以下の形式になっています。
 
-*Note: As of 2025/04/15, there is no documentation for ComfyUI's API JSON Schema. Therefore, be aware that the JSON Schema output by this API may become unusable in the future.*
+※ComfyUI の API 用の JSON Schema については 2025/04/15 現在でドキュメント化されていません。したがって、この API で出力される JSON Schema はそのうち使えなくなる可能性があることに留意してください。
 
 ```json
 {
@@ -314,7 +316,7 @@ It has the following format:
                     ...
                 },
                 {
-                    // Example of VAEDecode
+                    // VAEDecode の例
                     "type": "object",
                     "properties": {
                         "class_type": {
