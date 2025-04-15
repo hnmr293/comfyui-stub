@@ -1,10 +1,9 @@
 import json
 from test import node_types as nodes
-from src.workflow import Workflow
 
 
 def main():
-    wf = Workflow(nodes)
+    wf = nodes.Workflow()
 
     CKPT = "SDXL\\animagine-xl-3.1.safetensors"
     PROMPT = "1girl, solo, original, masterpiece, best quality"
@@ -44,7 +43,7 @@ def main():
 
 
 def main2():
-    wf = Workflow(nodes)
+    wf = nodes.Workflow()
 
     CKPT = "SDXL\\animagine-xl-3.1.safetensors"
     PROMPT = "1girl, solo, original, masterpiece, best quality"
@@ -87,7 +86,7 @@ def main3():
     decode = nodes.latent.VAEDecode()
     save = nodes.image.SaveImage(filename_prefix="test")
 
-    with Workflow(nodes) as wf:
+    with nodes.Workflow() as wf:
         ckpt.output("CLIP") - prompt.input("clip")
         ckpt.output("CLIP") - negative_prompt.input("clip")
         ckpt.output("MODEL") - sampler.input("model")
@@ -116,7 +115,7 @@ def main4():
     decode = nodes.latent.VAEDecode()
     save = nodes.image.SaveImage(filename_prefix="test")
 
-    with Workflow(nodes) as wf:
+    with nodes.Workflow() as wf:
         ckpt / "CLIP" - "clip" / prompt
         ckpt / "CLIP" - "clip" / negative_prompt
         ckpt / "MODEL" - "model" / sampler
@@ -155,7 +154,7 @@ def main5():
     decode = nodes.latent.VAEDecode()
     save = nodes.hnmr.image.SaveImagesMemory(MEMORY_TAG, dummy_input=random.randint(0, 9999))  # enforce rerun
 
-    with Workflow(nodes) as wf:
+    with nodes.Workflow() as wf:
         ckpt.output("CLIP") - prompt.input("clip")
         ckpt.output("CLIP") - negative_prompt.input("clip")
         ckpt.output("MODEL") - sampler.input("model")
