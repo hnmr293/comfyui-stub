@@ -1,3 +1,5 @@
+# pyright: reportUnusedExpression=false
+
 import json
 from test import node_types as nodes
 

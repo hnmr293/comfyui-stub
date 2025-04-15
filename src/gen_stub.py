@@ -104,9 +104,9 @@ def generate_stub(defns: list[NodeDefn]) -> str:
     class MyNode(_Node):
         def __init__(
             self,
-            param1: ComfyTypes.INT = _WILL_BE_LINKED,
-            param2: ComfyTypes.FLOAT = 0.5,
-            param3: ComfyTypes.STRING | None = _NOT_GIVEN,
+            param1: ComfyTypes.INT | ComfyOutput[ComfyTypes.INT] = _WILL_BE_LINKED,
+            param2: ComfyTypes.FLOAT | ComfyOutput[ComfyTypes.FLOAT] = 0.5,
+            param3: ComfyTypes.STRING | ComfyOutput[ComfyTypes.STRING] | None = _NOT_GIVEN,
         ):
             super().__init__("MyNode")
             self._add_input(ComfyInput(self, 0, "param1", ComfyTypes.INT, param1))
@@ -148,12 +148,19 @@ def generate_stub(defns: list[NodeDefn]) -> str:
 
 
 def _create_class_def(defn: NodeDefn1) -> str:
+    # class header
+
     header = f"class {defn.class_name}_{defn.id}(_Node):"
+
+    # class body
 
     ctor_params_list = ["self"]
     ctor_inputs_list = []
     ctor_outputs_list = []
     methods_list = []
+
+    # input_length
+    # output_length
 
     method = f"""
     @property
@@ -166,6 +173,9 @@ def _create_class_def(defn: NodeDefn1) -> str:
     def output_length(self) -> Literal[{len(defn.output_types)}]: return {len(defn.output_types)}
     """.rstrip()
     methods_list.append(method)
+
+    # ctor
+    # input method overloads
 
     non_alnum = re.compile(r"[^a-zA-Z0-9_]")
 
@@ -186,8 +196,8 @@ def _create_class_def(defn: NodeDefn1) -> str:
                 typ = "Any"
             ty = f"ComfyTypes.{typ}"
 
-        # param1: ComfyTypes.INT = _WILL_BE_LINKED,
-        ty1 = ty
+        # param1: ComfyTypes.INT | ComfyOutput[ComfyTypes.INT] = _WILL_BE_LINKED,
+        ty1 = f"{ty} | ComfyOutput[{ty}]"
         if req:
             if "default" in desc:
                 default = desc["default"]
@@ -220,6 +230,8 @@ def _create_class_def(defn: NodeDefn1) -> str:
     def input(self, index: int | str) -> ComfyInput[Any]: return super().input(index)
         """.rstrip()
     methods_list.append(method)
+
+    # output method overloads
 
     consumed_output_typenames = set()
     for i, p in enumerate(defn.output_types):
