@@ -33,7 +33,7 @@ def load_base_schema(major_version: int = 1, minor_version: int = 0) -> dict:
     return base_schema
 
 
-def load_base_api_schema(major_version: int = None, minor_version: int = None) -> dict:
+def load_base_api_schema(major_version: int | None = None, minor_version: int | None = None) -> dict:
     """
     return ComfyUI API schema
 
@@ -157,8 +157,8 @@ def create_node_types_for_api(defns: list[NodeDefn]) -> dict:
 
 def create_schema_for_api(
     defns: list[NodeDefn],
-    base_major_version: int = None,
-    base_minor_version: int = None,
+    base_major_version: int | None = None,
+    base_minor_version: int | None = None,
 ) -> dict:
     schema = load_base_api_schema(base_major_version, base_minor_version)
     json_defns: dict = schema.setdefault("definitions", {})

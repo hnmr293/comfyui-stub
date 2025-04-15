@@ -3,6 +3,7 @@ node definition
 """
 
 from dataclasses import dataclass
+from abc import ABC
 
 # ComfyUI imports
 from nodes import NODE_CLASS_MAPPINGS
@@ -49,15 +50,15 @@ class NodeDefn:
     category: list[str]
 
 
-class _NodeType:
+class _NodeType(ABC):
     @classmethod
-    def INPUT_TYPES(s) -> dict: ...
+    def INPUT_TYPES(cls) -> dict: ...
 
-    FUNCTION: str = ...
+    FUNCTION: str
 
-    RETURN_TYPES: tuple[str, ...] = ...
+    RETURN_TYPES: tuple[str, ...]
 
-    RETURN_NAMES: tuple[str, ...] = ...  # 存在しないかも
+    RETURN_NAMES: tuple[str, ...]  # 存在しないかも
 
 
 def _get_input_params(klass: type[_NodeType]) -> list[NodeParam]:
