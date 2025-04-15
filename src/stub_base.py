@@ -70,8 +70,21 @@ class ComfyOutput(Generic[_T]):
     type: _T
     """type of this output"""
 
-    def __sub__(self, other: ComfyInput[_T]):
-        raise NotImplementedError("call under workflow context")
+    def __sub__(self, other: ComfyInput[_T]) -> "Link":
+        # self - other == workflow.link(self, other)
+        wf = self.node._context
+        if wf is None:
+            raise RuntimeError("call under workflow context")
+        if not (wf is other.node._context):
+            raise RuntimeError("not same workflow context")
+
+        # add nodes and create link self -> other
+        if not any(self.node is n.node for n in wf._nodes):
+            wf.add(self.node)
+        if not any(other.node is n.node for n in wf._nodes):
+            wf.add(other.node)
+
+        return wf.link(self, other)
 
 
 #
@@ -320,27 +333,14 @@ class Workflow:
 
         raise TimeoutError(f"timeout {timeout} sec")
 
-
-class Workflow(WorkflowBase):
     def __enter__(self):
         # hook _Node.(_add_input|_add_output)
+        assert _Node._context is None, "already in workflow context"
         _Node._context = self
-
-        # link maker: output(1) - input(2)
-        def sub(src: ComfyOutput, dst: ComfyInput):
-            if not any(src.node is n.node for n in self._nodes):
-                self.add(src.node)
-            if not any(dst.node is n.node for n in self._nodes):
-                self.add(dst.node)
-            return self.link(src, dst)
-
-        ComfyOutput.__sub__ = sub  # type: ignore
-
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         _Node._context = None
-        del ComfyOutput.__sub__
         self.check()
 
     def _add_input(self, this: _Node, inp: ComfyInput):
