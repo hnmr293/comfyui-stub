@@ -142,8 +142,8 @@ class WorkflowBase:
         timeout: float = 60.0,
     ):
         self.check()
-        data = json.dumps({"prompt": self.to_dict()}, ensure_ascii=False)
-        req = request.Request(f"{url}/prompt", data=data.encode("utf-8"))
+        prompt_data = json.dumps({"prompt": self.to_dict()}, ensure_ascii=False)
+        req = request.Request(f"{url}/prompt", data=prompt_data.encode("utf-8"))
         res = request.urlopen(req)
         data = json.loads(res.read())
 
@@ -218,7 +218,7 @@ class Workflow(WorkflowBase):
                 self.add(dst.node)
             return self.link(src, dst)
 
-        self.__ComfyOutput.__sub__ = sub
+        self.__ComfyOutput.__sub__ = sub  # type: ignore
 
         return self
 

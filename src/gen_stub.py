@@ -17,7 +17,7 @@ class NodeDefn1(NodeDefn):
 def generate_stub(defns: list[NodeDefn]) -> str:
     """generate python source file"""
 
-    defns = [NodeDefn1(**vars(defn), id=uuid.uuid4().hex) for defn in defns]
+    defns1 = [NodeDefn1(**vars(defn), id=uuid.uuid4().hex) for defn in defns]
 
     stub_path = os.path.join(
         os.path.dirname(__file__),
@@ -32,7 +32,7 @@ def generate_stub(defns: list[NodeDefn]) -> str:
     extra_types = {}
     type_decls = []
 
-    for defn in defns:
+    for defn in defns1:
         types = []
         for p in defn.input_types:
             name, typ, req = p.name, p.type, p.required
@@ -136,11 +136,11 @@ def generate_stub(defns: list[NodeDefn]) -> str:
     """
 
     node_classes = []
-    for defn in defns:
+    for defn in defns1:
         node_class = _create_class_def(defn)
         node_classes.append(node_class)
 
-    namespace = _create_namespace_def(defns)
+    namespace = _create_namespace_def(defns1)
 
     fmt = "# fmt: off"
 

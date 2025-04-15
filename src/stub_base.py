@@ -63,7 +63,7 @@ class ComfyOutput(Generic[_T]):
 
 
 class _Node:
-    _context = None  # for workflow
+    _context: Any = None  # for workflow
 
     def __init__(self, name: str):
         self.name = name
