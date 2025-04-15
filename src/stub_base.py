@@ -151,8 +151,8 @@ class Link:
     dst_index: int
 
 
-class WorkflowBase:
-    def __init__(self, nodes_module):
+class Workflow:
+    def __init__(self):
         self._nodes: list[Node] = []
         self._links: list[Link] = []
         self._id = 0
