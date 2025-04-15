@@ -45,13 +45,11 @@ def main():
 
 
 def main2():
-    wf = nodes.Workflow()
-
     CKPT = "SDXL\\animagine-xl-3.1.safetensors"
     PROMPT = "1girl, solo, original, masterpiece, best quality"
     NEGATIVE_PROMPT = "bad quality, worst quality, low quality, text, watermark"
 
-    with wf:
+    with nodes.Workflow() as wf:
         ckpt = nodes.loaders.CheckpointLoaderSimple(CKPT)
         prompt = nodes.conditioning.CLIPTextEncode(PROMPT, ckpt.output("CLIP"))
         negative_prompt = nodes.conditioning.CLIPTextEncode(NEGATIVE_PROMPT, ckpt.output("CLIP"))
