@@ -266,7 +266,7 @@ Below is an example of generating an image with SDXL:
 import nodes
 
 # Constants for generation
-CKPT = "SDXL\\animagine-xl-3.1.safetensors"
+CKPT = "SDXL/animagine-xl-3.1.safetensors"
 PROMPT = "1girl, solo, original, masterpiece, best quality"
 NEGATIVE_PROMPT = "bad quality, worst quality, low quality, text, watermark"
 

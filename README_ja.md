@@ -268,7 +268,7 @@ SDXLによる画像生成を行う例を以下に示します。
 import nodes
 
 # 生成用の定数
-CKPT = "SDXL\\animagine-xl-3.1.safetensors"
+CKPT = "SDXL/animagine-xl-3.1.safetensors"
 PROMPT = "1girl, solo, original, masterpiece, best quality"
 NEGATIVE_PROMPT = "bad quality, worst quality, low quality, text, watermark"
 
