@@ -122,6 +122,12 @@ class _Node:
     def output_length(self) -> int:
         return len(self._outputs)
 
+    def inputs(self) -> tuple[ComfyInput[Any], ...]:
+        return tuple(self._inputs)
+
+    def outputs(self) -> tuple[ComfyOutput[Any], ...]:
+        return tuple(self._outputs)
+
     def input(self, index: int | str) -> ComfyInput[Any]:
         if isinstance(index, int):
             return self._inputs[index]

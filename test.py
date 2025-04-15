@@ -134,6 +134,32 @@ def main4():
 
 
 def main5():
+    CheckpointLoaderSimple = nodes.loaders.CheckpointLoaderSimple
+    CLIPTextEncode = nodes.conditioning.CLIPTextEncode
+    EmptyLatentImage = nodes.latent.EmptyLatentImage
+    KSampler = nodes.sampling.KSampler
+    VAEDecode = nodes.latent.VAEDecode
+    SaveImage = nodes.image.SaveImage
+
+    CKPT = "SDXL\\animagine-xl-3.1.safetensors"
+    PROMPT = "1girl, solo, original, masterpiece, best quality"
+    NEGATIVE_PROMPT = "bad quality, worst quality, low quality, text, watermark"
+
+    with nodes.Workflow() as wf:
+        model, clip, vae = CheckpointLoaderSimple(CKPT).outputs()
+        cond = CLIPTextEncode(PROMPT, clip).output(0)
+        uncond = CLIPTextEncode(NEGATIVE_PROMPT, clip).output(0)
+        latent = EmptyLatentImage(512, 512, 1).output(0)
+        samples = KSampler(model, 0, 20, 8.0, "euler", "normal", cond, uncond, latent).output(0)
+        images = VAEDecode(samples, vae).output(0)
+        save = SaveImage(images, filename_prefix="test")
+
+    x = wf.to_dict()
+    with open("workflow.json", "w") as io:
+        json.dump(x, io, indent=4)
+
+
+def main6():
     import struct
     import random
     from multiprocessing import shared_memory as sm
@@ -203,4 +229,4 @@ def main5():
 
 
 if __name__ == "__main__":
-    main5()
+    main6()

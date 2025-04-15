@@ -124,9 +124,11 @@ def generate_stub(defns: list[NodeDefn]) -> str:
         @overload
         def input(self, index: Literal[2, "param3"]) -> ComfyInput[ComfyTypes.STRING]: ...
         def input(self, index: int | str) -> ComfyInput[Any]: return super().input(index)
+        def inputs(self) -> tuple[ComyInput[ComfyTypes.INT], ComfyInput[ComfyTypes.FLOAT], ComfyInput[ComfyTypes.STRING]]: return super().inputs()
         @overload
         def output(self, index: Literal[0, "LATENT"]) -> ComfyOutput[ComfyTypes.LATENT]: ...
         def output(self, index: int | str) -> ComfyOutput[Any]: return super().output(index)
+        def outputs(self) -> tuple[ComfyOutput[ComfyTypes.LATENT]]: return super().outputs()
         __truediv__ = output
         __rtruediv__ = input
         
@@ -179,6 +181,7 @@ def _create_class_def(defn: NodeDefn1) -> str:
 
     non_alnum = re.compile(r"[^a-zA-Z0-9_]")
 
+    input_types = []
     for i, p in enumerate(defn.input_types):
         name, typ, req, desc = p.name, p.type, p.required, p.desc
         name = non_alnum.sub("_", name)
@@ -195,6 +198,8 @@ def _create_class_def(defn: NodeDefn1) -> str:
             if typ == "*":
                 typ = "Any"
             ty = f"ComfyTypes.{typ}"
+
+        input_types.append(ty)
 
         # param1: ComfyTypes.INT | ComfyOutput[ComfyTypes.INT] = _WILL_BE_LINKED,
         ty1 = f"{ty} | ComfyOutput[{ty}]"
@@ -231,8 +236,14 @@ def _create_class_def(defn: NodeDefn1) -> str:
         """.rstrip()
     methods_list.append(method)
 
+    method = f"""
+    def inputs(self) -> tuple[{", ".join([f"ComfyInput[{ty}]" for ty in input_types])}]: return super().inputs()
+        """.rstrip()
+    methods_list.append(method)
+
     # output method overloads
 
+    output_types = []
     consumed_output_typenames = set()
     for i, p in enumerate(defn.output_types):
         name, typ = p.name, p.type
@@ -252,6 +263,8 @@ def _create_class_def(defn: NodeDefn1) -> str:
             else:
                 allowed_typename = typ
             ty = f"ComfyTypes.{typ}"
+
+        output_types.append(ty)
 
         # self._outputs.append(ComfyOutput(self, 0, None, ComfyTypes.LATENT))
         out_name = json.dumps(name) if name is not None else "None"
@@ -273,6 +286,11 @@ def _create_class_def(defn: NodeDefn1) -> str:
 
     method = f"""
     def output(self, index: int | str) -> ComfyOutput[Any]: return super().output(index)
+        """.rstrip()
+    methods_list.append(method)
+
+    method = f"""
+    def outputs(self) -> tuple[{", ".join([f"ComfyOutput[{ty}]" for ty in output_types])}]: return super().outputs()
         """.rstrip()
     methods_list.append(method)
 
